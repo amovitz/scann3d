@@ -35,19 +35,13 @@ Note: Distance scanning plane here appears curved, however distance reported by 
 
 ## Installation
 
-### ESP32 Firmware (WIP)
+### ESP32 Firmware
 
-```bash
-# Install libraries (WIP)
-cd zephyr-firmware
-west update
-
-# Compile and upload (WIP)
-west build
-west flash
-```
+[Zephyr Firmware Instructions](zephyr-firmware/README.md)
 
 ### Python Viewer
+
+**TODO:** Unbreak the integration with this Zephyr firmware...
 
 ```bash
 pip install -r viewer/requirements.txt
@@ -56,13 +50,13 @@ pip install -r viewer/requirements.txt
 ## Usage
 
 ```bash
-python -m viewer --port /dev/cu.usbserial-0001
+python -m viewer --port /dev/ttyACM0
 ```
 
 Open http://localhost:8080 in your browser.
 
 **Options:**
-- `--port`, `-p`: Serial port (default: `/dev/cu.usbserial-0001`)
+- `--port`, `-p`: Serial port (default: `/dev/ttyACM0`)
 - `--baud`, `-b`: Baud rate (default: `115200`)
 - `--viser-port`: Viser server port (default: `8080`)
 - `--debug`: Enable verbose logging
@@ -80,14 +74,6 @@ Open http://localhost:8080 in your browser.
 | 8x8        | 64    | 15 Hz         |
 
 Currently configured for 8x8 at 15Hz.
-
-## Serial Protocol
-
-WIP
-
-## UDP Protocol
-
-WIP
 
 ## License
 
