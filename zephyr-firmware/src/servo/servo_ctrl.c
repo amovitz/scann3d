@@ -28,6 +28,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/logging/log.h>
+#include "protocol.h"
+#include "data_output.h"
 
 LOG_MODULE_REGISTER(servo_ctrl, LOG_LEVEL_INF);
 
@@ -66,6 +68,7 @@ static void servo_thread_fn(void *p1, void *p2, void *p3)
     ARG_UNUSED(p1); ARG_UNUSED(p2); ARG_UNUSED(p3);
 
     servo_msg_t msg;
+    static uint16_t seq_servo = 0;
 
     while (true) {
         /* Block indefinitely until a new command arrives */
@@ -88,6 +91,14 @@ static void servo_thread_fn(void *p1, void *p2, void *p3)
         if (rc != 0) {
             LOG_ERR("servo_ctrl: pwm_set_dt failed: %d", rc);
         } else {
+            servo_payload_t payload = {
+                .timestamp_ms = k_uptime_get_32(),
+                .position     = msg.position,
+                .servo_num    = msg.servo,
+            };
+
+            data_output_send(PKT_STATUS, seq_servo++, &payload, sizeof(payload));
+
             LOG_DBG("servo %u -> pos=%.3f pulse=%u ns",
                     msg.servo, (double)pos, pulse_ns);
         }

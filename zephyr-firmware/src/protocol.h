@@ -33,10 +33,11 @@ extern "C" {
 
 /* ── Packet types ─────────────────────────────────────────────────────────── */
 typedef enum __attribute__((packed)) {
-    PKT_TOF   = 0x01,   /* VL53L8CX 8×8 ranging frame          */
+    PKT_TOF   = 0x01,   /* VL53L8CX 8×8 ranging frame           */
     PKT_IMU0  = 0x02,   /* LSM6DSV main board (fixed)           */
     PKT_IMU1  = 0x03,   /* LSM6DSV tracker (detachable)         */
-    PKT_STATUS = 0x10,  /* heartbeat / error flags              */
+    PKT_SER0  = 0x04,   /* Servo 0                              */
+    PKT_STATUS= 0xFF,   /* heartbeat / error flags              */
 } scanner_pkt_type_t;
 
 /* ── ToF payload (329 bytes) ──────────────────────────────────────────────── */
@@ -71,6 +72,13 @@ typedef struct __attribute__((packed)) {
     uint8_t  wifi_ok  : 1;
     uint8_t  _rsvd    : 4;
 } status_payload_t;
+
+/* ── Servo payload (72 bytes) ────────────────────────────────────────────── */
+typedef struct __attribute__((packed)) {
+    uint32_t timestamp_ms;          /* k_uptime_get_32()                  */
+    float    position;              /* float value from -1.0 to +1.0      */
+    uint8_t  servo_num;             /* servo position                     */
+} servo_payload_t;
 
 #if defined(CONFIG_OUTPUT_JSON)
 
@@ -140,6 +148,13 @@ static const struct json_obj_descr status_payload_descr[] = {
     JSON_OBJ_DESCR_PRIM(status_json_t, imu0_ok,      JSON_TOK_NUMBER),
     JSON_OBJ_DESCR_PRIM(status_json_t, imu1_ok,      JSON_TOK_NUMBER),
     JSON_OBJ_DESCR_PRIM(status_json_t, wifi_ok,      JSON_TOK_NUMBER),
+};
+
+/* ── Servo JSON view ─────────────────────────────────────────────────────── */
+static const struct json_obj_descr servo_payload_descr[] = {
+    JSON_OBJ_DESCR_PRIM(servo_payload_t, timestamp_ms, JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(servo_payload_t, position,     JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(servo_payload_t, servo_num,    JSON_TOK_NUMBER),
 };
 
 # else

@@ -154,7 +154,7 @@ All frames share a 9-byte envelope:
 
 ```
 [0x55][0xAA]  magic        2 bytes
-[type]        packet type  1 byte  (0x01=ToF, 0x02=IMU0, 0x03=IMU1, 0x10=Status)
+[type]        packet type  1 byte  (0x01=ToF, 0x02=IMU0, 0x03=IMU1, 0x04=SER0, 0xFF=Status)
 [seq]         sequence     2 bytes LE - per-type rolling counter
 [len]         payload len  2 bytes LE
 [payload]     N bytes
@@ -167,7 +167,8 @@ All frames share a 9-byte envelope:
 |---|---|---|
 | PKT_TOF (0x01) | 329 bytes | 338 bytes |
 | PKT_IMU0/1 (0x02/03) | 20 bytes | 29 bytes |
-| PKT_STATUS (0x10) | 5 bytes | 14 bytes |
+| PKT_SER0 (0x04) | 72 bytes | 81 bytes |
+| PKT_STATUS (0xFF) | 5 bytes | 14 bytes |
 
 ### ToF payload (`tof_payload_t`)
 
