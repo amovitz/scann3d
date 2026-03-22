@@ -17,6 +17,7 @@ set(VL53L8CX_ULD_SOURCES
 
 target_sources(app PRIVATE
     src/main.c
+    src/work_queues.c
     src/protocol.c
     src/wifi_mgr.c
     src/uart_aux.c

@@ -12,15 +12,15 @@
  * │ D2_B    │  IO3 │ RGB LED 2 - Blue  (GPIO, active-high, via resistor)   │
  * │ D2_G    │  IO4 │ RGB LED 2 - Green (GPIO, active-high, via resistor)   │
  * │ D2_R    │  IO5 │ RGB LED 2 - Red   (GPIO, active-high, via resistor)   │
- * │ SDA     │  IO6 │ I2C0 data  - VL53L8CX + LSM6DSV ×2                  │
- * │ SCL     │  IO7 │ I2C0 clock                                           │
- * │ I2C_RST │  IO8 │ VL53L8CX XSHUT (active-low GPIO)                    │
- * │ PWM     │  IO9 │ Servo - LEDC ch0, 50 Hz, 1–2 ms pulse               │
- * │ EXT     │ IO10 │ RFU                                                  │
- * │ USB_D−  │ IO18 │ Native USB OTG - do not reassign                     │
- * │ USB_D+  │ IO19 │ Native USB OTG - do not reassign                     │
- * │ RXD     │ IO20 │ UART0 RX                                             │
- * │ TXD     │ IO21 │ UART0 TX                                             │
+ * │ SDA     │  IO6 │ I2C0 data  - VL53L8CX + LSM6DSV ×2                    │
+ * │ SCL     │  IO7 │ I2C0 clock                                            │
+ * │ I2C_RST │  IO8 │ VL53L8CX XSHUT (active-low GPIO)                      │
+ * │ PWM     │  IO9 │ Servo - LEDC ch0, 50 Hz, 1–2 ms pulse                 │
+ * │ EXT     │ IO10 │ RFU                                                   │
+ * │ USB_D−  │ IO18 │ Native USB OTG - do not reassign                      │
+ * │ USB_D+  │ IO19 │ Native USB OTG - do not reassign                      │
+ * │ RXD     │ IO20 │ UART0 RX                                              │
+ * │ TXD     │ IO21 │ UART0 TX                                              │
  * └─────────┴──────┴───────────────────────────────────────────────────────┘
  *
  * I2C address map (single bus, I2C0):
