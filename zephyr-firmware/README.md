@@ -148,7 +148,11 @@ RFU
 
 ---
 
-## Wire protocol
+## JSON Protocol
+
+TODO: Fill this section
+
+## Raw Wire protocol
 
 All frames share a 9-byte envelope:
 
