@@ -32,3 +32,12 @@ config SCANNER_IMU_PERIOD_MS
     help
       1 ms -> 1 kHz. The LSM6DSV ODR caps at 7680 Hz internally; the
       Zephyr timer fires at 1 kHz and drains the FIFO each tick.
+
+
+config OUTPUT_JSON
+    bool "Set raw protocol frames out or JSON output"
+    default y
+    select JSON_LIBRARY
+    help
+      y: Output JSON
+      n: Output raw frame buffer

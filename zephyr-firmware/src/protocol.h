@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <zephyr/data/json.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,8 +72,82 @@ typedef struct __attribute__((packed)) {
     uint8_t  _rsvd    : 4;
 } status_payload_t;
 
+#if defined(CONFIG_OUTPUT_JSON)
+
+// FIXME: Buffer can be smaller
+#define JSON_BUFFER_MAX  1024
+#define FRAME_BUF_MAX    (JSON_BUFFER_MAX)
+
+/* ── ToF JSON view ───────────────────────────────────────────────────────── */
+typedef struct {
+    uint32_t timestamp_ms;
+    uint16_t distance_mm[TOF_ZONES];
+    uint16_t sigma_mm[TOF_ZONES];
+    uint8_t  status[TOF_ZONES];
+    uint8_t  nb_target_detected[TOF_ZONES];
+    size_t   distance_mm_len;
+    size_t   sigma_mm_len;
+    size_t   status_len;
+    size_t   nb_target_detected_len;
+} tof_json_t;
+
+static const struct json_obj_descr tof_payload_descr[] = {
+    JSON_OBJ_DESCR_PRIM(tof_json_t, timestamp_ms,        JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_ARRAY(tof_json_t, distance_mm,        TOF_ZONES, distance_mm_len,        JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_ARRAY(tof_json_t, sigma_mm,           TOF_ZONES, sigma_mm_len,           JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_ARRAY(tof_json_t, status,             TOF_ZONES, status_len,             JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_ARRAY(tof_json_t, nb_target_detected, TOF_ZONES, nb_target_detected_len, JSON_TOK_NUMBER),
+};
+
+/* ── IMU JSON view (shared for IMU0 and IMU1) ────────────────────────────── */
+typedef struct {
+    uint32_t timestamp_ms;
+    int16_t  accel_x;   /* raw 16-bit - scale = ±16 g / 32768             */
+    int16_t  accel_y;
+    int16_t  accel_z;
+    int16_t  gyro_x;    /* raw 16-bit - scale = ±2000 dps / 32768         */
+    int16_t  gyro_y;
+    int16_t  gyro_z;
+    int16_t  temp_raw;  /* LSM6DSV: (raw / 256) + 25 °C                   */
+    uint8_t  imu_num;
+} imu_json_t;
+
+static const struct json_obj_descr imu_payload_descr[] = {
+    JSON_OBJ_DESCR_PRIM(imu_json_t, timestamp_ms, JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(imu_json_t, accel_x,      JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(imu_json_t, accel_y,      JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(imu_json_t, accel_z,      JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(imu_json_t, gyro_x,       JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(imu_json_t, gyro_y,       JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(imu_json_t, gyro_z,       JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(imu_json_t, temp_raw,     JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(imu_json_t, imu_num,      JSON_TOK_NUMBER),
+};
+
+/* ── Status JSON view ────────────────────────────────────────────────────── */
+/* Bitfields can't be described directly — flatten into a wrapper */
+typedef struct {
+    uint32_t timestamp_ms;
+    int      tof_ok;
+    int      imu0_ok;
+    int      imu1_ok;
+    int      wifi_ok;
+} status_json_t;
+
+static const struct json_obj_descr status_payload_descr[] = {
+    JSON_OBJ_DESCR_PRIM(status_json_t, timestamp_ms, JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(status_json_t, tof_ok,       JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(status_json_t, imu0_ok,      JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(status_json_t, imu1_ok,      JSON_TOK_NUMBER),
+    JSON_OBJ_DESCR_PRIM(status_json_t, wifi_ok,      JSON_TOK_NUMBER),
+};
+
+# else
+
 /* ── Maximum serialised frame size ───────────────────────────────────────── */
-#define FRAME_BUF_MAX  (PROTO_OVERHEAD + sizeof(tof_payload_t))
+#define FRAME_BUF_MAX    (PROTO_OVERHEAD + sizeof(tof_payload_t))
+
+#endif /* CONFIG_OUTPUT_JSON */
 
 /* ── Utility: build a complete frame into buf[], return total length ─────── */
 uint16_t proto_encode(uint8_t *buf, size_t buf_size,
