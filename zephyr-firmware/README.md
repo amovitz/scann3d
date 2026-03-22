@@ -17,7 +17,7 @@
 | Main IMU | LSM6DSV(TR) | I2C0 | 0x6A | On-Board |
 | Tracker IMU | LSM6DSV(TR) | I2C1 | 0x6B | Detachable |
 
-### Pin map (edit `boards/esp32c3_devkitm.overlay` to change)
+### Pin map (edit `boards/esp32c3_devkitc.overlay` to change)
 
 ```
 IO0   LED1-B
@@ -47,8 +47,13 @@ Pull SA0 on the tracker LSM6DSV to VDD → address 0x6B.
 
 ### Installing automatically 
 
-I *highly* recommend installing the [Zephyr Extension for VSCode](https://marketplace.visualstudio.com/items?itemName=mylonics.zephyr-ide) and using it to install tools to the `zephyr-firmware` directory. Then:
+I *highly* recommend installing the [Zephyr Extension for VSCode](https://marketplace.visualstudio.com/items?itemName=mylonics.zephyr-ide) and using it to install tools to the `zephyr-firmware` directory.
 
+Once tools are installed, add a **Project** with the `esp32c3_devkitc` board.
+
+Under **Project Config**, add the `boards/esp32c3_devkitc.overlay` to **zephyr-firmware/DTC Overlay**.
+
+Then:
 
 ```bash
 cd zephy-firmware
@@ -75,6 +80,27 @@ west blobs fetch hal_espressif
 west zephyr-export
 ```
 
+
+### Building & Flashing manually
+
+```bash
+# Set your WiFi credentials (or edit prj.conf)
+export SCANNER_WIFI_SSID="my_ap"
+export SCANNER_WIFI_PSK="my_password"
+
+west build -b esp32c3_devkitc ./ \
+    -p \
+    --build-dir build/esp32c3_devkitc \
+    -- \
+    -DCONFIG_SCANNER_WIFI_SSID=\"${SCANNER_WIFI_SSID}\" \
+    -DCONFIG_SCANNER_WIFI_PSK=\"${SCANNER_WIFI_PSK}\"
+    -DCONFIG_DEBUG_OPTIMIZATIONS=y \
+    -DCONFIG_DEBUG_THREAD_INFO=y \
+    -DEXTRA_DTC_OVERLAY_FILE='boards/esp32c3_devkitc.overlay;'
+
+west flash
+```
+
 ### VL53L8CX ULD (required - not bundled)
 
 Download the driver from [ST Micro directly](https://www.st.com/en/embedded-software/stsw-img040.html).
@@ -91,31 +117,12 @@ cp STSW-IMG040/VL53L8CX_ULD_driver_2.0.1/VL53L8CX_ULD_API/src/* \
 # Copy Platform
 cp STSW-IMG040/VL53L8CX_ULD_driver_2.0.1/Platform/platform.c \
    STSW-IMG040/VL53L8CX_ULD_driver_2.0.1/Platform/platform.h \
-   lib/
+   lib/vl53lcx_uld/
 ```
 
 The ULD contains ST proprietary firmware; it cannot be redistributed here.
 
-#### Fixes:
-
-- Fix missing semicolon on line 368 of `vl53l8cx_api.c`
-- 
-
----
-
-## Build & Flash
-
-```bash
-# Set your WiFi credentials (or edit prj.conf)
-export SCANNER_WIFI_SSID="my_ap"
-export SCANNER_WIFI_PSK="my_password"
-
-west build -b esp32c3_devkitm scanner/ -- \
-    -DCONFIG_SCANNER_WIFI_SSID=\"${SCANNER_WIFI_SSID}\" \
-    -DCONFIG_SCANNER_WIFI_PSK=\"${SCANNER_WIFI_PSK}\"
-
-west flash
-```
+**Note:** Fix missing semicolon on line 368 of `vl53l8cx_api.c`
 
 ---
 
@@ -144,7 +151,7 @@ RFU
 All frames share a 9-byte envelope:
 
 ```
-[0x55][0xAA]  magic       2 bytes
+[0x55][0xAA]  magic        2 bytes
 [type]        packet type  1 byte  (0x01=ToF, 0x02=IMU0, 0x03=IMU1, 0x10=Status)
 [seq]         sequence     2 bytes LE - per-type rolling counter
 [len]         payload len  2 bytes LE
@@ -176,9 +183,9 @@ uint8_t  nb_target_detected[64]
 
 ```c
 uint32_t timestamp_ms
-int16_t  accel_{x,y,z}   // ±16 g,    LSB = 0.488 mg
-int16_t  gyro_{x,y,z}    // ±2000 dps, LSB = 0.061 dps
-int16_t  temp_raw         // °C = (raw / 256.0) + 25.0
+int16_t  accel_{x,y,z}         // ±16 g,    LSB = 0.488 mg
+int16_t  gyro_{x,y,z}          // ±2000 dps, LSB = 0.061 dps
+int16_t  temp_raw              // °C = (raw / 256.0) + 25.0
 ```
 
 ---

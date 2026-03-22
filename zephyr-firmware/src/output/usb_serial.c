@@ -22,13 +22,6 @@ LOG_MODULE_REGISTER(usb_serial, LOG_LEVEL_INF);
 
 static const struct device *_dev;
 
-/* Required by CDC-ACM driver — must be set even if unused */
-static void _uart_irq_cb(const struct device *dev, void *user_data)
-{
-    ARG_UNUSED(dev);
-    ARG_UNUSED(user_data);
-}
-
 
 int usb_serial_init(void)
 {
