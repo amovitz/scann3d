@@ -25,12 +25,12 @@
  *
  * I2C address map (single bus, I2C0):
  *   0x29  VL53L8CX   ToF 8×8 ranging sensor
- *   0x6A  LSM6DSV    Main-board IMU  (SA0 → GND)
- *   0x6B  LSM6DSV    Detachable tracker IMU (SA0 → VDD)
+ *   0x6A  LSM6DSV    Main-board IMU  (SA0 -> GND)
+ *   0x6B  LSM6DSV    Detachable tracker IMU (SA0 -> VDD)
  *
  * Pinctrl note (Zephyr 3.7 / ESP32-C3):
- *   All peripheral IO on ESP32-C3 routes through the GPIO matrix.  Zephyr 3.4+
- *   handles this through the pinctrl subsystem.  The deprecated sda-pin/scl-pin
+ *   All peripheral IO on ESP32-C3 routes through the GPIO matrix. Zephyr 3.4+
+ *   handles this through the pinctrl subsystem. The deprecated sda-pin/scl-pin
  *   and gpio-pin/freq-hz/timer-index LEDC properties are NOT used here.
  *
  *   Pinmux macros are from:
@@ -98,7 +98,7 @@
         compatible = "st,vl53l8cx";
         reg = <0x29>;
         /*
-         * IO8 drives XSHUT active-low.  The platform layer pulses this pin
+         * IO8 drives XSHUT active-low. The platform layer pulses this pin
          * to perform a hardware reset during vl53l8cx_init().
          * Remove this property if XSHUT is hard-wired to 3V3 instead.
          */
@@ -106,7 +106,7 @@
         label = "VL53L8CX";
     };
 
-    /* Main-board IMU - SA0 pulled to GND → address 0x6A */
+    /* Main-board IMU - SA0 pulled to GND -> address 0x6A */
     imu0: lsm6dsv@6a {
         compatible = "st,lsm6dsv";
         reg = <0x6a>;
@@ -116,8 +116,8 @@
     };
 
     /*
-     * Detachable tracker IMU - SA0 pulled to VDD → address 0x6B.
-     * The DTS node is always present.  lsm6dsv_driver.c probes WHO_AM_I
+     * Detachable tracker IMU - SA0 pulled to VDD -> address 0x6B.
+     * The DTS node is always present. lsm6dsv_driver.c probes WHO_AM_I
      * at init and every ~1024 timer ticks to handle hot-plug/unplug.
      */
     imu1: lsm6dsv@6b {
@@ -132,7 +132,7 @@
  * 3. UART0 - auxiliary serial port (IO20 RX / IO21 TX)
  * ══════════════════════════════════════════════════════════════════════════════
  *
- * The application console is on USB CDC-ACM (see chosen node below), so
+ * The application console is on USB Serial (see chosen node below), so
  * UART0 is free for any future use: host bridge, NMEA, external module, etc.
  * Configuring it here applies the pinctrl state at boot and reserves the pins.
  */
@@ -148,7 +148,7 @@
  * ══════════════════════════════════════════════════════════════════════════════
  *
  * ESP32-C3 LEDC operates in low-speed mode only (6 channels, 4 timers).
- * We declare channel 0 bound to timer 0.  The GPIO routing is in pinctrl.
+ * We declare channel 0 bound to timer 0. The GPIO routing is in pinctrl.
  *
  * Zephyr 3.7 espressif,esp32-ledc channel subnode properties:
  *   reg   - channel index (0–5)
@@ -205,7 +205,7 @@
      *   PWM_DT_SPEC_GET(DT_NODELABEL(servo0_pwm))
      *
      * pwms specifier: <&ledc0  channel  period-ns  flags>
-     *   period-ns = 20 000 000 → 20 ms → 50 Hz (standard RC servo)
+     *   period-ns = 20 000 000 -> 20 ms -> 50 Hz (standard RC servo)
      */
     pwmleds {
         compatible = "pwm-leds";
@@ -228,14 +228,8 @@
         aux-uart = &uart0;
     };
 
-    /* ── Chosen - application console on USB CDC-ACM ─────────────────────── */
+    /* ── Chosen - application console on USB Serial ─────────────────────── */
     chosen {
-        /*
-         * CONFIG_UART_CONSOLE=n in prj.conf directs the Zephyr console away
-         * from any UART.  These two entries route printk/log/shell output
-         * through the USB CDC-ACM virtual serial port instead.
-         * UART0 (IO20/IO21) remains available for application use.
-         */
         zephyr,console    = &usb_serial;
         zephyr,shell-uart = &usb_serial;
     };

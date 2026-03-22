@@ -2,7 +2,7 @@
  * wifi_mgr.c
  *
  * Uses Zephyr's WiFi management API (introduced in Zephyr 3.4) to connect
- * the ESP32-C3 to the configured AP.  Blocks until the IP stack is up or
+ * the ESP32-C3 to the configured AP. Blocks until the IP stack is up or
  * a 30-second timeout expires.
  */
 

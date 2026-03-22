@@ -7,21 +7,21 @@
  * Standard RC servo protocol:
  *
  *   Period   : 20 ms  (50 Hz)
- *   Pulse min: 1000 µs  → full clockwise
- *   Pulse mid: 1500 µs  → stopped
- *   Pulse max: 2000 µs  → full counter-clockwise
+ *   Pulse min: 1000 µs  -> full clockwise
+ *   Pulse mid: 1500 µs  -> stopped
+ *   Pulse max: 2000 µs  -> full counter-clockwise
  *
  * The position value maps linearly:
- *   -1.0  →  1000 µs pulse  (full CW)
- *    0.0  →  1500 µs pulse  (stopped)
- *   +1.0  →  2000 µs pulse  (full CCW)
+ *   -1.0  ->  1000 µs pulse  (full CW)
+ *    0.0  ->  1500 µs pulse  (stopped)
+ *   +1.0  ->  2000 µs pulse  (full CCW)
  *
  * Messages are queued and consumed by a dedicated low-priority thread.
  * Once a position is set, the PWM hardware holds it autonomously until
  * the next message arrives.
  *
  * Message format:
- *   { .servo = SERVO_0, .position = 0.5f }  → 75% CCW speed
+ *   { .servo = SERVO_0, .position = 0.5f }  -> 75% CCW speed
  */
 
 #ifndef SERVO_CTRL_H
@@ -45,7 +45,7 @@ extern "C" {
 
 /* ── Message ──────────────────────────────────────────────────────────────── */
 typedef struct {
-    uint8_t servo;     /* Servo index - SERVO_0, etc.                */
+    uint8_t servo;     /* Servo index - SERVO_0, etc.               */
     float   position;  /* Clamped to [-1.0, +1.0]; 0.0 = stop       */
 } servo_msg_t;
 
@@ -61,7 +61,7 @@ typedef struct {
 int servo_ctrl_init(void);
 
 /**
- * @brief  Command a servo to a position.  Non-blocking; queued.
+ * @brief  Command a servo to a position. Non-blocking; queued.
  *
  * @param servo     Servo index (SERVO_0 … NUM_SERVOS-1).
  * @param position  Target position [-1.0, +1.0].

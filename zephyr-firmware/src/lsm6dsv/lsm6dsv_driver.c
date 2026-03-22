@@ -52,8 +52,8 @@ LOG_MODULE_REGISTER(lsm6dsv, LOG_LEVEL_INF);
 
 /*
  * Full-scale codes:
- *   Accel FS [5:4]:  00=±2g  01=±4g  10=±8g  11=±16g  → use 11
- *   Gyro  FS [5:4]:  00=±125dps  01=±250  10=±500  11=±1000  100=±2000 → 100
+ *   Accel FS [5:4]:  00=±2g  01=±4g  10=±8g  11=±16g  -> use 11
+ *   Gyro  FS [5:4]:  00=±125dps  01=±250  10=±500  11=±1000  100=±2000 -> 100
  *
  * Gyro FS lives in CTRL2[5:3] for LSM6DSV (differs from LSM6DS3).
  * Accel FS = CTRL1[5:4]

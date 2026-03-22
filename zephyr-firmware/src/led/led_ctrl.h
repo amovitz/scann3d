@@ -4,13 +4,13 @@
  * GPIO-muxed RGB LED controller for scann3d.
  *
  * Two common-cathode RGB LEDs (D1 and D2) are driven by individual GPIO pins -
- * no PWM.  Mixed colours (yellow, cyan, magenta, white) are produced by rapid
+ * no PWM. Mixed colours (yellow, cyan, magenta, white) are produced by rapid
  * time-division multiplexing at ~750 Hz, which is well above the flicker-
- * fusion threshold (~60 Hz).  Each active channel in a mixed colour receives
+ * fusion threshold (~60 Hz). Each active channel in a mixed colour receives
  * an equal share of the duty cycle:
  *
- *   WHITE  → R/G/B each at ~250 Hz  (750 Hz ÷ 3)
- *   YELLOW → R/G   each at ~375 Hz  (750 Hz ÷ 2)
+ *   WHITE  -> R/G/B each at ~250 Hz  (750 Hz ÷ 3)
+ *   YELLOW -> R/G   each at ~375 Hz  (750 Hz ÷ 2)
  *   etc.
  *
  * Two message types share a single queue (tagged union):
@@ -83,7 +83,7 @@ typedef struct {
 int led_ctrl_init(void);
 
 /**
- * @brief  Set the colour of one LED.  Non-blocking; queued.
+ * @brief  Set the colour of one LED. Non-blocking; queued.
  *
  * @param diode  LED_D1 or LED_D2
  * @param color  Desired colour (LED_COLOR_OFF turns the LED off)
@@ -92,7 +92,7 @@ int led_ctrl_init(void);
 int led_set_color(uint8_t diode, led_color_t color);
 
 /**
- * @brief  Configure blink timing for one LED.  Non-blocking; queued.
+ * @brief  Configure blink timing for one LED. Non-blocking; queued.
  *         The LED cycles between the current colour (on_ms) and off (off_ms).
  *         Pass on_ms = 0 to disable blinking.
  *

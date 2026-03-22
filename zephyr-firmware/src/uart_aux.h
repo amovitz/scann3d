@@ -3,9 +3,9 @@
  *
  * Auxiliary UART (IO20 RX / IO21 TX) interface.
  *
- * UART0 is distinct from the USB CDC-ACM console.  This module provides a
+ * UART0 is distinct from the USB CDC-ACM console. This module provides a
  * simple write path so any subsystem can send bytes out UART0 without
- * duplicating the device lookup.  Receive is interrupt-driven and delivered
+ * duplicating the device lookup. Receive is interrupt-driven and delivered
  * through a k_msgq for non-blocking consumption by any thread.
  *
  * Usage - transmit:

@@ -13,7 +13,7 @@
  *                   2. For each LED, determine visibility (blink state).
  *                   3. Advance the mux slot and set the correct GPIO.
  *
- * GPIO indexing (per-LED channel array index → colour bit):
+ * GPIO indexing (per-LED channel array index -> colour bit):
  *   [0] = Red   [1] = Green   [2] = Blue
  *
  * colour_mask[] encodes which channels are active as a 3-bit field:
@@ -29,7 +29,7 @@
 LOG_MODULE_REGISTER(led_ctrl, LOG_LEVEL_INF);
 
 /* ── Tuning ───────────────────────────────────────────────────────────────── */
-#define MUX_PERIOD_US    1333u   /* ~750 Hz timer → 250 Hz per channel in WHITE */
+#define MUX_PERIOD_US    1333u   /* ~750 Hz timer -> 250 Hz per channel in WHITE */
 #define LED_QUEUE_DEPTH  8u
 
 /* ── DT GPIO specs  [led_index][channel: 0=R 1=G 2=B] ────────────────────── */
@@ -46,7 +46,7 @@ static const struct gpio_dt_spec led_gpios[NUM_LEDS][3] = {
     },
 };
 
-/* ── Colour → active-channel bitmask ─────────────────────────────────────── */
+/* ── Colour -> active-channel bitmask ─────────────────────────────────────── */
 #define CH_R  BIT(0)
 #define CH_G  BIT(1)
 #define CH_B  BIT(2)

@@ -42,7 +42,7 @@ int udp_out_init(void)
         return -EINVAL;
     }
 
-    LOG_INF("UDP → %s:%d", CONFIG_SCANNER_UDP_HOST, CONFIG_SCANNER_UDP_PORT);
+    LOG_INF("UDP -> %s:%d", CONFIG_SCANNER_UDP_HOST, CONFIG_SCANNER_UDP_PORT);
     return 0;
 }
 

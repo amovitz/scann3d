@@ -17,9 +17,9 @@
  * frame dispatch.
  *
  * Data flow:
- *   work handler → proto_encode() → data_output_push() → output thread
- *                                                        ├─ udp_out_send()
- *                                                        └─ usb_serial_write()
+ *   work handler -> proto_encode() -> data_output_push() -> output thread
+ *                                                          ├─ udp_out_send()
+ *                                                          └─ usb_serial_write()
  */
 
 #include <zephyr/kernel.h>

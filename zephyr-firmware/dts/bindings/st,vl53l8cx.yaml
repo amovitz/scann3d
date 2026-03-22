@@ -12,7 +12,7 @@ properties:
     type: phandle-array
     description: >
       GPIO connected to the XSHUT (active-low reset/shutdown) pin.
-      Drive high to enable the device.  Optional; if not present the
+      Drive high to enable the device. Optional; if not present the
       driver assumes XSHUT is tied to VDD.
 
   label:

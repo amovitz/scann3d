@@ -3,9 +3,9 @@
  *
  * Interrupt-driven driver for the auxiliary UART0 (IO20 RX / IO21 TX).
  *
- * The RX ISR pushes received bytes into uart_aux_rx_msgq.  If the queue is
+ * The RX ISR pushes received bytes into uart_aux_rx_msgq. If the queue is
  * full, bytes are silently dropped - the application should drain the queue
- * frequently.  TX uses uart_fifo_fill() in a loop; it is blocking in the
+ * frequently. TX uses uart_fifo_fill() in a loop; it is blocking in the
  * sense that it yields until all bytes are accepted by the hardware FIFO,
  * but it does not busy-wait - k_yield() gives other threads CPU time.
  */
@@ -22,7 +22,7 @@ LOG_MODULE_REGISTER(uart_aux, LOG_LEVEL_INF);
 #define UART0_NODE       DT_ALIAS(aux_uart)    /* &uart0 via alias in overlay */
 #define RX_QUEUE_DEPTH   256u
 
-/* ── RX message queue (1-byte items, ISR → thread) ─────────────────────── */
+/* ── RX message queue (1-byte items, ISR -> thread) ─────────────────────── */
 K_MSGQ_DEFINE(uart_aux_rx_msgq, sizeof(uint8_t), RX_QUEUE_DEPTH, 1);
 
 static const struct device *_uart_dev;

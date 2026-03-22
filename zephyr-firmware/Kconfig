@@ -30,5 +30,5 @@ config SCANNER_IMU_PERIOD_MS
     int "LSM6DSV sampling period (ms)"
     default 1
     help
-      1 ms → 1 kHz.  The LSM6DSV ODR caps at 7680 Hz internally; the
+      1 ms -> 1 kHz. The LSM6DSV ODR caps at 7680 Hz internally; the
       Zephyr timer fires at 1 kHz and drains the FIFO each tick.

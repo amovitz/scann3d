@@ -37,9 +37,9 @@ IO20  RFU (Serial RXD)
 IO21  RFU (Serial TXD)
 ```
 
-Pull SA0 on the main LSM6DSV to GND → address 0x6A.
+Pull SA0 on the main LSM6DSV to GND -> address 0x6A.
 
-Pull SA0 on the tracker LSM6DSV to VDD → address 0x6B.
+Pull SA0 on the tracker LSM6DSV to VDD -> address 0x6B.
 
 ---
 
@@ -130,13 +130,13 @@ The ULD contains ST proprietary firmware; it cannot be redistributed here.
 
 ### USB serial (CDC-ACM)
 
-Connect a USB cable.  The device appears as `/dev/ttyACMx` (Linux) or
-`COMx` (Windows).  Baud rate is irrelevant - CDC-ACM is USB-native.
+Connect a USB cable. The device appears as `/dev/ttyACMx` (Linux) or
+`COMx` (Windows). Baud rate is irrelevant - CDC-ACM is USB-native.
 
 ### UDP
 
 Frames are sent to `CONFIG_SCANNER_UDP_HOST:CONFIG_SCANNER_UDP_PORT`
-(default `192.168.1.100:5005`).  The scanner holds a static IP
+(default `192.168.1.100:5005`). The scanner holds a static IP
 (`192.168.1.200`) by default; change `CONFIG_NET_CONFIG_MY_IPV4_ADDR`
 in `prj.conf` or enable `CONFIG_NET_DHCPV4` to use DHCP instead.
 
@@ -205,7 +205,7 @@ VL53L8CX firmware overhead over I2C at 400 kHz can exceed that budget at 8×8.
 ## Hot-plug tracker IMU
 
 The tracker IMU (IMU1) is checked for presence every ~1024 IMU ticks (≈1 s).
-If the connector is removed, `PKT_IMU1` frames simply stop.  Re-inserting
+If the connector is removed, `PKT_IMU1` frames simply stop. Re-inserting
 the connector will resume frames within ~1 s without a reboot.
 
 ---

@@ -1,7 +1,7 @@
 /*
  * data_output.h
  *
- * Unified output layer.  Callers push encoded frames into a k_msgq;
+ * Unified output layer. Callers push encoded frames into a k_msgq;
  * a dedicated output thread drains it to both UDP and USB-serial in parallel.
  */
 

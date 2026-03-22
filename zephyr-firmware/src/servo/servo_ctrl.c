@@ -14,9 +14,9 @@
  *   range     =    500 000 ns  (±500 µs either side of mid)
  *   pulse(p)  = mid + (int32_t)(p × range)
  *
- *   p = -1.0  →  pulse = 1 000 000 ns  (1 ms, full CW)
- *   p =  0.0  →  pulse = 1 500 000 ns  (1.5 ms, stopped)
- *   p = +1.0  →  pulse = 2 000 000 ns  (2 ms, full CCW)
+ *   p = -1.0  ->  pulse = 1 000 000 ns  (1 ms, full CW)
+ *   p =  0.0  ->  pulse = 1 500 000 ns  (1.5 ms, stopped)
+ *   p = +1.0  ->  pulse = 2 000 000 ns  (2 ms, full CCW)
  *
  * DT node used:
  *   servo0_pwm  - defined in boards/esp32c3_devkitm.overlay
@@ -78,7 +78,7 @@ static void servo_thread_fn(void *p1, void *p2, void *p3)
             continue;
         }
 
-        /* Map position [-1.0, +1.0] → pulse width in nanoseconds */
+        /* Map position [-1.0, +1.0] -> pulse width in nanoseconds */
         float pos = fclamp(msg.position, SERVO_POS_FULL_CW, SERVO_POS_FULL_CCW);
         uint32_t pulse_ns = (uint32_t)((int32_t)SERVO_MID_NS
                             + (int32_t)(pos * (float)SERVO_RANGE_NS));
@@ -88,7 +88,7 @@ static void servo_thread_fn(void *p1, void *p2, void *p3)
         if (rc != 0) {
             LOG_ERR("servo_ctrl: pwm_set_dt failed: %d", rc);
         } else {
-            LOG_DBG("servo %u → pos=%.3f pulse=%u ns",
+            LOG_DBG("servo %u -> pos=%.3f pulse=%u ns",
                     msg.servo, (double)pos, pulse_ns);
         }
     }
