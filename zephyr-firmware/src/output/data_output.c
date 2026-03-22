@@ -11,6 +11,7 @@
 #include "udp_out.h"
 #include "usb_serial.h"
 #include "../protocol.h"
+#include "led/led_ctrl.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
@@ -34,8 +35,10 @@ static void output_thread(void *p1, void *p2, void *p3)
 
     while (true) {
         if (k_msgq_get(&output_q, &frame, K_FOREVER) == 0) {
+            led_set_color(LED_D1, LED_COLOR_OFF);
             udp_out_send(frame.buf, frame.len);
             usb_serial_write(frame.buf, frame.len);
+            led_set_color(LED_D1, LED_COLOR_GREEN);
         }
     }
 }

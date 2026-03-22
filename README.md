@@ -49,6 +49,27 @@ pip install -r viewer/requirements.txt
 
 ## Usage
 
+### ESP32 Board
+
+| LED | Color | Behavior | Meaning |
+|---|---|---|---|
+| D1 | White | Blinking | Booting |
+| D1 | Yellow | Blinking | WiFi connecting |
+| D1 | Red | Blinking | WiFi disconnected |
+| D1 | Green | Steady | WiFi connected |
+| D1 | Green | Blinking | Output (USB serial+UDP) sending data |
+| D2 | White | Blinking | Booting |
+| D2 | Cyan | Steady | Servo init failure |
+| D2 | Magenta | Steady | UART0 init failure |
+| D2 | Red | Steady | Output (USB serial+UDP) init failure |
+| D2 | Green | Steady | ToF, IMU0 init success |
+| D2 | Green | Blinking | ToF, IMU0, IMU1 init success |
+| D2 | Yellow | Steady | ToF init success |
+| D2 | Blue | Steady | IMU0 init success |
+| D2 | Blue | Blinking | IMU0, IMU1 init success |
+
+### Python Viewer
+
 ```bash
 python -m viewer --port /dev/ttyACM0
 ```

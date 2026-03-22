@@ -129,6 +129,24 @@ static void status_work_handler(struct k_work *w)
         .imu1_ok  = (imu1_ctx != NULL && lsm6dsv_is_present(imu1_ctx)),
         .wifi_ok  = 1,   /* if we got here, WiFi was up at init */
     };
+
+    /* D2 indicates sensor readiness: green = ToF+IMU OK, yellow = ToF only, blue = IMU only */
+    if (st.tof_ok && st.imu0_ok) {
+        if (st.imu1_ok) {
+            led_set_blink(LED_D2, LED_COLOR_GREEN, 500);
+        } else {
+            led_set_color(LED_D2, LED_COLOR_GREEN);
+        }
+    } else if (st.tof_ok) {
+        led_set_color(LED_D2, LED_COLOR_YELLOW);
+    } else if (st.imu0_ok) {
+        if (st.imu1_ok) {
+            led_set_blink(LED_D2, LED_COLOR_BLUE, 500);
+        } else {
+            led_set_color(LED_D2, LED_COLOR_BLUE);
+        }
+    }
+
     data_output_send(PKT_STATUS, seq_status++, &st, sizeof(st));
 }
 K_WORK_DEFINE(status_work, status_work_handler);
@@ -154,39 +172,35 @@ int main(void)
     }
 
     /* Boot indicator: both LEDs white, fast blink */
-    led_set_color(LED_D1, LED_COLOR_WHITE);
-    led_set_color(LED_D2, LED_COLOR_WHITE);
-    led_set_blink(LED_D1, 100, 100);
-    led_set_blink(LED_D2, 100, 100);
+    led_set_blink(LED_D1, LED_COLOR_WHITE, 100);
+    led_set_blink(LED_D2, LED_COLOR_WHITE, 100);
 
     /* 2. Servo controller */
     if (servo_ctrl_init() != 0) {
         LOG_ERR("Servo init failed");
+        led_set_color(LED_D2, LED_COLOR_CYAN);    /* steady cyan = fatal */
     }
 
     /* 3. Auxiliary UART0 (IO20/IO21 - available for future use) */
     if (uart_aux_init() != 0) {
         LOG_WRN("Auxiliary UART init failed (non-fatal)");
+        led_set_color(LED_D2, LED_COLOR_MAGENTA);  /* steady magenta = fatal */
     }
 
     /* 4. Output subsystem (USB serial + UDP socket) */
     if (data_output_init() != 0) {
         LOG_ERR("Output init failed - halting");
-        led_set_color(LED_D1, LED_COLOR_RED);
-        led_set_blink(LED_D1, 0, 0);   /* steady red = fatal */
+        led_set_color(LED_D2, LED_COLOR_RED);      /* steady red = fatal */
         return -1;
     }
 
     /* 5. WiFi - non-fatal; UDP won't work but USB-serial will */
-    led_set_color(LED_D1, LED_COLOR_YELLOW);
-    led_set_blink(LED_D1, 200, 200);  /* yellow blink = connecting */
+    led_set_blink(LED_D1, LED_COLOR_YELLOW, 500);  /* yellow blink = connecting */
     if (wifi_mgr_connect() != 0) {
         LOG_WRN("WiFi unavailable - UDP output disabled");
-        led_set_color(LED_D1, LED_COLOR_YELLOW);
-        led_set_blink(LED_D1, 0, 0);  /* steady yellow = no WiFi */
+        led_set_blink(LED_D1, LED_COLOR_RED, 500); /* blinking red = no WiFi */
     } else {
-        led_set_color(LED_D1, LED_COLOR_GREEN);
-        led_set_blink(LED_D1, 0, 0);  /* steady green = WiFi up */
+        led_set_color(LED_D1, LED_COLOR_GREEN);    /* steady green = WiFi up */
     }
 
     /* 6. Sensors */
@@ -205,10 +219,22 @@ int main(void)
         LOG_WRN("LSM6DSV tracker not present (detachable - OK)");
     }
 
-    /* D2 indicates sensor readiness: cyan = ToF+IMU OK, blue = IMU only */
-    bool sensors_ok = (tof_ctx != NULL) && (imu0_ctx != NULL);
-    led_set_color(LED_D2, sensors_ok ? LED_COLOR_CYAN : LED_COLOR_BLUE);
-    led_set_blink(LED_D2, 0, 0);  /* steady */
+    /* D2 indicates sensor readiness: green = ToF+IMU OK, yellow = ToF only, blue = IMU only */
+    if ((tof_ctx != NULL) && (imu0_ctx != NULL)) {
+        if (imu1_ctx != NULL) {
+            led_set_blink(LED_D2, LED_COLOR_GREEN, 500);
+        } else {
+            led_set_color(LED_D2, LED_COLOR_GREEN);
+        }
+    } else if (tof_ctx != NULL) {
+        led_set_color(LED_D2, LED_COLOR_YELLOW);
+    } else if (imu0_ctx != NULL) {
+        if (imu1_ctx != NULL) {
+            led_set_blink(LED_D2, LED_COLOR_BLUE, 500);
+        } else {
+            led_set_color(LED_D2, LED_COLOR_BLUE);
+        }
+    }
 
     /* 7. Start sampling timers */
     k_timer_start(&imu_timer,

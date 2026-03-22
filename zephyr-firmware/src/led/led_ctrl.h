@@ -62,16 +62,8 @@ typedef enum {
 typedef struct {
     led_msg_type_t type;
     uint8_t        diode;     /* LED_D1 or LED_D2 */
-    union {
-        /* LED_MSG_COLOR */
-        led_color_t color;
-
-        /* LED_MSG_BLINK */
-        struct {
-            uint32_t on_ms;   /* >0 to enable blink; 0 to disable */
-            uint32_t off_ms;
-        } blink;
-    };
+    led_color_t    color;     /* LED_MSG_COLOR */
+    uint32_t       blink_ms;  /* LED_MSG_BLINK */
 } led_msg_t;
 
 /* ── Public API ───────────────────────────────────────────────────────────── */
@@ -96,12 +88,12 @@ int led_set_color(uint8_t diode, led_color_t color);
  *         The LED cycles between the current colour (on_ms) and off (off_ms).
  *         Pass on_ms = 0 to disable blinking.
  *
- * @param diode   LED_D1 or LED_D2
- * @param on_ms   ON duration in milliseconds
- * @param off_ms  OFF duration in milliseconds
+ * @param diode     LED_D1 or LED_D2
+ * @param color     Desired colour (LED_COLOR_OFF turns the LED off)
+ * @param blink_ms  ON/OFF duration in milliseconds
  * @return 0 on success, -ENOMEM if the queue is full.
  */
-int led_set_blink(uint8_t diode, uint32_t on_ms, uint32_t off_ms);
+int led_set_blink(uint8_t diode, led_color_t color, uint32_t blink_ms);
 
 /** @brief Direct queue access for callers that build their own led_msg_t. */
 extern struct k_msgq led_msgq;

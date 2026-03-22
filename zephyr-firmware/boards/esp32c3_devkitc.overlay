@@ -207,8 +207,8 @@
      * pwms specifier: <&ledc0  channel  period-ns  flags>
      *   period-ns = 20 000 000 -> 20 ms -> 50 Hz (standard RC servo)
      */
-    pwmleds {
-        compatible = "pwm-leds";
+    pwm-servo {
+        compatible = "pwm-servo";
 
         servo0_pwm: servo0_pwm {
             pwms = <&ledc0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;

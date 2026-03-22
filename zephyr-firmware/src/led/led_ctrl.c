@@ -66,8 +66,7 @@ static const uint8_t color_mask[_LED_COLOR_MAX] = {
 struct led_state {
     led_color_t color;
     uint8_t     mux_slot;      /* index into active channels list, 0-based */
-    uint32_t    blink_on_ms;   /* 0 = blink disabled                       */
-    uint32_t    blink_off_ms;
+    uint32_t    blink_ms;
 };
 
 static struct led_state led_state[NUM_LEDS];
@@ -130,10 +129,10 @@ static void led_mux_work_handler(struct k_work *w)
             if (msg.color < _LED_COLOR_MAX) {
                 s->color    = msg.color;
                 s->mux_slot = 0u;
+                s->blink_ms = 0u;
             }
         } else {  /* LED_MSG_BLINK */
-            s->blink_on_ms  = msg.blink.on_ms;
-            s->blink_off_ms = msg.blink.off_ms;
+            s->blink_ms  = msg.blink_ms;
         }
     }
 
@@ -145,11 +144,11 @@ static void led_mux_work_handler(struct k_work *w)
 
         /* ── Blink gating ──────────────────────────────────────────────────── */
         bool visible = true;
-        if (s->blink_on_ms > 0u) {
-            uint32_t cycle = s->blink_on_ms + s->blink_off_ms;
+        if (s->blink_ms > 0u) {
+            uint32_t cycle = s->blink_ms * 2;
             if (cycle > 0u) {
                 uint32_t phase = (uint32_t)(now_ms % (int64_t)cycle);
-                visible = (phase < s->blink_on_ms);
+                visible = (phase < s->blink_ms);
             }
         }
 
@@ -199,8 +198,7 @@ int led_ctrl_init(void)
         }
         led_state[led].color        = LED_COLOR_OFF;
         led_state[led].mux_slot     = 0u;
-        led_state[led].blink_on_ms  = 0u;
-        led_state[led].blink_off_ms = 0u;
+        led_state[led].blink_ms     = 0u;
     }
 
     /* Start mux timer */
@@ -219,23 +217,24 @@ int led_set_color(uint8_t diode, led_color_t color)
         return -EINVAL;
     }
     led_msg_t msg = {
-        .type  = LED_MSG_COLOR,
-        .diode = diode,
-        .color = color,
+        .type      = LED_MSG_COLOR,
+        .diode     = diode,
+        .color     = color,
+        .blink_ms  = 0u,
     };
     return k_msgq_put(&led_msgq, &msg, K_NO_WAIT);
 }
 
-int led_set_blink(uint8_t diode, uint32_t on_ms, uint32_t off_ms)
+int led_set_blink(uint8_t diode, led_color_t color, uint32_t blink_ms)
 {
     if (diode >= NUM_LEDS) {
         return -EINVAL;
     }
     led_msg_t msg = {
-        .type           = LED_MSG_BLINK,
-        .diode          = diode,
-        .blink.on_ms    = on_ms,
-        .blink.off_ms   = off_ms,
+        .type      = LED_MSG_BLINK,
+        .diode     = diode,
+        .color     = color,
+        .blink_ms  = blink_ms,
     };
     return k_msgq_put(&led_msgq, &msg, K_NO_WAIT);
 }
