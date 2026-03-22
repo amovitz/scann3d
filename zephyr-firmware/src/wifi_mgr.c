@@ -26,7 +26,7 @@ static struct net_mgmt_event_callback _wifi_cb;
 static struct net_mgmt_event_callback _ipv4_cb;
 
 static void wifi_event_handler(struct net_mgmt_event_callback *cb,
-                                uint32_t mgmt_event,
+                                uint64_t mgmt_event,
                                 struct net_if *iface)
 {
     ARG_UNUSED(cb);
@@ -46,7 +46,7 @@ static void wifi_event_handler(struct net_mgmt_event_callback *cb,
 }
 
 static void ipv4_event_handler(struct net_mgmt_event_callback *cb,
-                                uint32_t mgmt_event,
+                                uint64_t mgmt_event,
                                 struct net_if *iface)
 {
     ARG_UNUSED(cb);
@@ -57,7 +57,7 @@ static void ipv4_event_handler(struct net_mgmt_event_callback *cb,
         if (ipv4) {
             char addr_str[NET_IPV4_ADDR_LEN];
             net_addr_ntop(AF_INET,
-                          &ipv4->unicast[0].address.in_addr,
+                          &ipv4->unicast[0].ipv4.address.in_addr,
                           addr_str, sizeof(addr_str));
             LOG_INF("IP address: %s", addr_str);
         }
