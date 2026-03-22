@@ -1,0 +1,26 @@
+# Copyright (c) 2024 - st,lsm6dsv binding
+# SPDX-License-Identifier: Apache-2.0
+
+description: STMicroelectronics LSM6DSV iNEMO 6-axis IMU
+
+compatible: "st,lsm6dsv"
+
+include: i2c-device.yaml
+
+properties:
+  irq-gpios:
+    type: phandle-array
+    description: GPIO connected to INT1 or INT2.
+
+  int-pin:
+    type: int
+    default: 1
+    enum:
+      - 1
+      - 2
+    description: >
+      Select which physical interrupt pin (INT1=1, INT2=2) the driver
+      should configure for data-ready notification.
+
+  label:
+    type: string

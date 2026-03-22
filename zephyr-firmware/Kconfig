@@ -1,0 +1,34 @@
+mainmenu "scann3d Configuration"
+
+source "Kconfig.zephyr"
+
+config SCANNER_WIFI_SSID
+    string "WiFi SSID"
+    default "my_network"
+
+config SCANNER_WIFI_PSK
+    string "WiFi password"
+    default "my_password"
+
+config SCANNER_UDP_HOST
+    string "UDP destination IP address"
+    default "192.168.1.100"
+
+config SCANNER_UDP_PORT
+    int "UDP destination port"
+    default 5005
+    range 1024 65535
+
+config SCANNER_TOF_PERIOD_MS
+    int "VL53L8CX sampling period (ms)"
+    default 66
+    help
+      Minimum is ~34 ms for 8x8 @ 60 Hz integration, but 66 ms (15 Hz)
+      gives safe headroom for I2C firmware overhead.
+
+config SCANNER_IMU_PERIOD_MS
+    int "LSM6DSV sampling period (ms)"
+    default 1
+    help
+      1 ms → 1 kHz.  The LSM6DSV ODR caps at 7680 Hz internally; the
+      Zephyr timer fires at 1 kHz and drains the FIFO each tick.

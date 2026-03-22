@@ -1,0 +1,252 @@
+/*
+ * boards/esp32c3_devkitm.overlay
+ *
+ * scann3D v1 - ESP32-C3-WROOM-02-N4
+ *
+ * ┌─────────┬──────┬───────────────────────────────────────────────────────┐
+ * │ Signal  │  IO  │ Notes                                                 │
+ * ├─────────┼──────┼───────────────────────────────────────────────────────┤
+ * │ D1_B    │  IO0 │ RGB LED 1 - Blue  (GPIO, active-high, via resistor)   │
+ * │ D1_G    │  IO1 │ RGB LED 1 - Green (GPIO, active-high, via resistor)   │
+ * │ D1_R    │  IO2 │ RGB LED 1 - Red   (GPIO, active-high, via resistor)   │
+ * │ D2_B    │  IO3 │ RGB LED 2 - Blue  (GPIO, active-high, via resistor)   │
+ * │ D2_G    │  IO4 │ RGB LED 2 - Green (GPIO, active-high, via resistor)   │
+ * │ D2_R    │  IO5 │ RGB LED 2 - Red   (GPIO, active-high, via resistor)   │
+ * │ SDA     │  IO6 │ I2C0 data  - VL53L8CX + LSM6DSV ×2                  │
+ * │ SCL     │  IO7 │ I2C0 clock                                           │
+ * │ I2C_RST │  IO8 │ VL53L8CX XSHUT (active-low GPIO)                    │
+ * │ PWM     │  IO9 │ Servo - LEDC ch0, 50 Hz, 1–2 ms pulse               │
+ * │ EXT     │ IO10 │ RFU                                                  │
+ * │ USB_D−  │ IO18 │ Native USB OTG - do not reassign                     │
+ * │ USB_D+  │ IO19 │ Native USB OTG - do not reassign                     │
+ * │ RXD     │ IO20 │ UART0 RX                                             │
+ * │ TXD     │ IO21 │ UART0 TX                                             │
+ * └─────────┴──────┴───────────────────────────────────────────────────────┘
+ *
+ * I2C address map (single bus, I2C0):
+ *   0x29  VL53L8CX   ToF 8×8 ranging sensor
+ *   0x6A  LSM6DSV    Main-board IMU  (SA0 → GND)
+ *   0x6B  LSM6DSV    Detachable tracker IMU (SA0 → VDD)
+ *
+ * Pinctrl note (Zephyr 3.7 / ESP32-C3):
+ *   All peripheral IO on ESP32-C3 routes through the GPIO matrix.  Zephyr 3.4+
+ *   handles this through the pinctrl subsystem.  The deprecated sda-pin/scl-pin
+ *   and gpio-pin/freq-hz/timer-index LEDC properties are NOT used here.
+ *
+ *   Pinmux macros are from:
+ *     <zephyr/dt-bindings/pinctrl/esp32c3-pinctrl.h>
+ *   Each macro encodes the GPIO number, the GPIO-matrix output signal, and the
+ *   input signal in a single 32-bit word understood by the ESP32 pinctrl driver.
+ */
+
+#include <zephyr/dt-bindings/pinctrl/esp32c3-pinctrl.h>
+
+/* ══════════════════════════════════════════════════════════════════════════════
+ * 1. PINCTRL - map peripheral signals to physical GPIO pads
+ * ══════════════════════════════════════════════════════════════════════════════
+ */
+&pinctrl {
+
+    /* ── I2C0: SDA=IO6, SCL=IO7 ──────────────────────────────────────────── */
+    i2c0_default: i2c0_default {
+        group1 {
+            pinmux = <I2C0_SDA_GPIO6>,
+                     <I2C0_SCL_GPIO7>;
+            bias-pull-up;       /* PCB has 4k7; this adds a weak MCU pull-up */
+            drive-open-drain;   /* mandatory for I2C                         */
+            output-high;        /* bus idles high (released)                 */
+        };
+    };
+
+    /* ── LEDC channel 0: IO9 (servo PWM) ────────────────────────────────── */
+    ledc0_default: ledc0_default {
+        group1 {
+            pinmux = <LEDC_CH0_GPIO9>;
+            output-enable;
+        };
+    };
+
+    /* ── UART0: TX=IO21, RX=IO20 ─────────────────────────────────────────── */
+    uart0_default: uart0_default {
+        group1 {
+            pinmux = <UART0_TX_GPIO21>;
+            output-enable;
+        };
+        group2 {
+            pinmux = <UART0_RX_GPIO20>;
+            bias-pull-up;   /* prevent RX floating when nothing is connected */
+        };
+    };
+};
+
+/* ══════════════════════════════════════════════════════════════════════════════
+ * 2. I2C0 - single shared sensor bus  (400 kHz)
+ * ══════════════════════════════════════════════════════════════════════════════
+ *
+ * All three sensors (VL53L8CX + two LSM6DSV) share this bus.
+ * The VL53L8CX firmware upload (~84 KB) happens once at boot and takes
+ * roughly 1.7 s at 400 kHz - sensors are polled by timers after that.
+ */
+&i2c0 {
+    status = "okay";
+    pinctrl-0 = <&i2c0_default>;
+    pinctrl-names = "default";
+    clock-frequency = <I2C_BITRATE_FAST>;   /* 400 kHz */
+
+    vl53l8cx: vl53l8cx@29 {
+        compatible = "st,vl53l8cx";
+        reg = <0x29>;
+        /*
+         * IO8 drives XSHUT active-low.  The platform layer pulses this pin
+         * to perform a hardware reset during vl53l8cx_init().
+         * Remove this property if XSHUT is hard-wired to 3V3 instead.
+         */
+        xshut-gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
+        label = "VL53L8CX";
+    };
+
+    /* Main-board IMU - SA0 pulled to GND → address 0x6A */
+    imu0: lsm6dsv@6a {
+        compatible = "st,lsm6dsv";
+        reg = <0x6a>;
+        int-pin = <1>;
+        label = "LSM6DSV_MAIN";
+        /* INT1 not wired to MCU on this rev; driver polls STATUS_REG */
+    };
+
+    /*
+     * Detachable tracker IMU - SA0 pulled to VDD → address 0x6B.
+     * The DTS node is always present.  lsm6dsv_driver.c probes WHO_AM_I
+     * at init and every ~1024 timer ticks to handle hot-plug/unplug.
+     */
+    imu1: lsm6dsv@6b {
+        compatible = "st,lsm6dsv";
+        reg = <0x6b>;
+        int-pin = <1>;
+        label = "LSM6DSV_TRACK";
+    };
+};
+
+/* ══════════════════════════════════════════════════════════════════════════════
+ * 3. UART0 - auxiliary serial port (IO20 RX / IO21 TX)
+ * ══════════════════════════════════════════════════════════════════════════════
+ *
+ * The application console is on USB CDC-ACM (see chosen node below), so
+ * UART0 is free for any future use: host bridge, NMEA, external module, etc.
+ * Configuring it here applies the pinctrl state at boot and reserves the pins.
+ */
+&uart0 {
+    status = "okay";
+    pinctrl-0 = <&uart0_default>;
+    pinctrl-names = "default";
+    current-speed = <115200>;
+};
+
+/* ══════════════════════════════════════════════════════════════════════════════
+ * 4. LEDC - hardware PWM for servo on IO9
+ * ══════════════════════════════════════════════════════════════════════════════
+ *
+ * ESP32-C3 LEDC operates in low-speed mode only (6 channels, 4 timers).
+ * We declare channel 0 bound to timer 0.  The GPIO routing is in pinctrl.
+ *
+ * Zephyr 3.7 espressif,esp32-ledc channel subnode properties:
+ *   reg   - channel index (0–5)
+ *   timer - which LEDC timer drives this channel (0–3)
+ *
+ * Period and duty cycle are set at runtime by pwm_set_dt() in servo_ctrl.c.
+ * There is no freq-hz / gpio-pin / timer-index at this binding version -
+ * those were pre-pinctrl properties removed in Zephyr 3.4.
+ */
+&ledc0 {
+    status = "okay";
+    pinctrl-0 = <&ledc0_default>;
+    pinctrl-names = "default";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel0@0 {
+        reg = <0>;
+        timer = <0>;
+    };
+};
+
+/* ══════════════════════════════════════════════════════════════════════════════
+ * 5. Root-level nodes - LEDs, servo descriptor, aliases, chosen
+ * ══════════════════════════════════════════════════════════════════════════════
+ */
+/ {
+
+    /* ── RGB LEDs (GPIO-driven, no PWM) ───────────────────────────────────── */
+    leds {
+        compatible = "gpio-leds";
+
+        /*
+         * D1: IO0=B, IO1=G, IO2=R
+         * Individual GPIO per channel; time-division muxing in led_ctrl.c
+         * produces mixed colours (yellow, cyan, magenta, white) without PWM.
+         */
+        d1_b: d1_b { gpios = <&gpio0 0 GPIO_ACTIVE_HIGH>; label = "D1_BLUE";  };
+        d1_g: d1_g { gpios = <&gpio0 1 GPIO_ACTIVE_HIGH>; label = "D1_GREEN"; };
+        d1_r: d1_r { gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>; label = "D1_RED";   };
+
+        /* D2: IO3=B, IO4=G, IO5=R */
+        d2_b: d2_b { gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>; label = "D2_BLUE";  };
+        d2_g: d2_g { gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>; label = "D2_GREEN"; };
+        d2_r: d2_r { gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>; label = "D2_RED";   };
+    };
+
+    /* ── Servo PWM descriptor ─────────────────────────────────────────────── */
+    /*
+     * Uses compatible = "pwm-servo" (dts/bindings/pwm-servo.yaml).
+     * This prevents Zephyr's pwm-leds driver from claiming the LEDC channel.
+     *
+     * servo_ctrl.c resolves this node with:
+     *   PWM_DT_SPEC_GET(DT_NODELABEL(servo0_pwm))
+     *
+     * pwms specifier: <&ledc0  channel  period-ns  flags>
+     *   period-ns = 20 000 000 → 20 ms → 50 Hz (standard RC servo)
+     */
+    pwm_servos: pwm_servos {
+        compatible = "pwm-servo";
+
+        servo0_pwm: servo0_pwm {
+            pwms = <&ledc0 0 20000000 PWM_POLARITY_NORMAL>;
+            label = "SERVO0_PWM";
+        };
+    };
+
+    /* ── Aliases ──────────────────────────────────────────────────────────── */
+    aliases {
+        led-d1-b = &d1_b;
+        led-d1-g = &d1_g;
+        led-d1-r = &d1_r;
+        led-d2-b = &d2_b;
+        led-d2-g = &d2_g;
+        led-d2-r = &d2_r;
+        servo0   = &servo0_pwm;
+        aux-uart = &uart0;
+    };
+
+    /* ── Chosen - application console on USB CDC-ACM ─────────────────────── */
+    chosen {
+        /*
+         * CONFIG_UART_CONSOLE=n in prj.conf directs the Zephyr console away
+         * from any UART.  These two entries route printk/log/shell output
+         * through the USB CDC-ACM virtual serial port instead.
+         * UART0 (IO20/IO21) remains available for application use.
+         */
+        zephyr,console    = &cdc_acm_uart0;
+        zephyr,shell-uart = &cdc_acm_uart0;
+    };
+};
+
+/* ══════════════════════════════════════════════════════════════════════════════
+ * 6. USB CDC-ACM - virtual serial port over native USB OTG (IO18/IO19)
+ * ══════════════════════════════════════════════════════════════════════════════
+ */
+&zephyr_udc0 {
+    cdc_acm_uart0: cdc_acm_uart0 {
+        compatible = "zephyr,cdc-acm-uart";
+        label = "CDC_ACM_0";
+    };
+};

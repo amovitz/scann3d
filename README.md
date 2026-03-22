@@ -83,17 +83,11 @@ Currently configured for 8x8 at 15Hz.
 
 ## Serial Protocol
 
-The ESP32 streams JSON over serial at 115200 baud:
+WIP
 
-```json
-{"distances":[d0,d1,...,d63],"status":[s0,s1,...,s63],"quat":[w,x,y,z]}
-```
+## UDP Protocol
 
-- `distances`: 64 values in mm (perpendicular distance)
-- `status`: 64 values (5 = valid measurement)
-- `quat`: IMU quaternion (w, x, y, z)
-
-Zones are row-major: 0-7 = row 0, 8-15 = row 1, etc.
+WIP
 
 ## License
 

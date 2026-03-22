@@ -1,0 +1,20 @@
+# Copyright (c) 2024 - pwm-servo binding
+# SPDX-License-Identifier: Apache-2.0
+#
+# Minimal binding for a PWM-driven servo node.
+# Lets us use PWM_DT_SPEC_GET() on child nodes without pulling in
+# the gpio-leds / pwm-leds driver, which would try to own the channel.
+
+description: PWM servo channel descriptor
+
+compatible: "pwm-servo"
+
+child-binding:
+  description: Individual servo output
+  properties:
+    pwms:
+      type: phandle-array
+      required: true
+      description: PWM specifier (controller, channel, period-ns, flags)
+    label:
+      type: string

@@ -1,0 +1,19 @@
+# Copyright (c) 2024 - st,vl53l8cx binding
+# SPDX-License-Identifier: Apache-2.0
+
+description: STMicroelectronics VL53L8CX time-of-flight ranging sensor (8x8)
+
+compatible: "st,vl53l8cx"
+
+include: i2c-device.yaml
+
+properties:
+  xshut-gpios:
+    type: phandle-array
+    description: >
+      GPIO connected to the XSHUT (active-low reset/shutdown) pin.
+      Drive high to enable the device.  Optional; if not present the
+      driver assumes XSHUT is tied to VDD.
+
+  label:
+    type: string
