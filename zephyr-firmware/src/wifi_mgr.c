@@ -55,11 +55,28 @@ static void ipv4_event_handler(struct net_mgmt_event_callback *cb,
         /* Log obtained address */
         struct net_if_ipv4 *ipv4 = iface->config.ip.ipv4;
         if (ipv4) {
+            LOG_INF("Connected to SSID: %s", CONFIG_SCANNER_WIFI_SSID);
+
+            // Get IP address
             char addr_str[NET_IPV4_ADDR_LEN];
             net_addr_ntop(AF_INET,
                           &ipv4->unicast[0].ipv4.address.in_addr,
                           addr_str, sizeof(addr_str));
             LOG_INF("IP address: %s", addr_str);
+
+            // Get subnet mask
+            char mask_str[NET_IPV4_ADDR_LEN];
+            net_addr_ntop(AF_INET,
+                          &ipv4->unicast[0].netmask,
+                          mask_str, sizeof(mask_str));
+            LOG_INF("Subnet mask: %s", mask_str);
+
+            // Get gateway
+            char gw_str[NET_IPV4_ADDR_LEN];
+            net_addr_ntop(AF_INET,
+                          &ipv4->gw,
+                          gw_str, sizeof(gw_str));
+            LOG_INF("Gateway: %s", gw_str);
         }
         k_sem_give(&ip_obtained_sem);
     }
@@ -120,3 +137,4 @@ int wifi_mgr_connect(void)
 
     return 0;
 }
+
