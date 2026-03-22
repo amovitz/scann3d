@@ -105,6 +105,8 @@ west flash
 
 Download the driver from [ST Micro directly](https://www.st.com/en/embedded-software/stsw-img040.html).
 
+[VL53L8CX ULD Reference Manual](https://www.st.com/resource/en/user_manual/um3109-a-guide-for-using-the-vl53l8cx-lowpower-highperformance-timeofflight-multizone-ranging-sensor-stmicroelectronics.pdf)
+
 ```bash
 # Unzip files
 unzip STSW-IMG040.zip
