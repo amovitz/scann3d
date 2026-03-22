@@ -14,65 +14,45 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/uart.h>
-#include <zephyr/usb/usb_device.h>
 #include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(usb_serial, LOG_LEVEL_INF);
 
-#define CDC_UART_NODE  DT_NODELABEL(cdc_acm_uart0)
+#define USB_SERIAL_NODE DT_NODELABEL(usb_serial)
 
-static const struct device *_cdc_dev;
+static const struct device *_dev;
+
+/* Required by CDC-ACM driver — must be set even if unused */
+static void _uart_irq_cb(const struct device *dev, void *user_data)
+{
+    ARG_UNUSED(dev);
+    ARG_UNUSED(user_data);
+}
+
 
 int usb_serial_init(void)
 {
-    _cdc_dev = DEVICE_DT_GET(CDC_UART_NODE);
-    if (!device_is_ready(_cdc_dev)) {
-        LOG_ERR("CDC-ACM device not ready");
+    _dev = DEVICE_DT_GET(USB_SERIAL_NODE);
+    if (!device_is_ready(_dev)) {
+        LOG_ERR("USB serial device not ready");
         return -ENODEV;
     }
-
-    int rc = usb_enable(NULL);
-    if (rc != 0 && rc != -EALREADY) {
-        LOG_ERR("usb_enable failed: %d", rc);
-        return rc;
-    }
-
-    /*
-     * Wait for the host to open the port (DTR set).
-     * We poll up to 5 s; if no host connects we continue anyway -
-     * the TX bytes will simply be discarded until a host opens the port.
-     */
-    uint32_t dtr  = 0;
-    int      wait = 50;
-    while (wait-- > 0 && !dtr) {
-        uart_line_ctrl_get(_cdc_dev, UART_LINE_CTRL_DTR, &dtr);
-        k_msleep(100);
-    }
-
-    if (!dtr) {
-        LOG_WRN("No USB host detected - streaming will begin when connected");
-    } else {
-        LOG_INF("USB CDC-ACM ready");
-    }
+    LOG_INF("USB serial ready");
     return 0;
 }
 
 void usb_serial_write(const uint8_t *buf, uint16_t len)
 {
-    if (!_cdc_dev) { return; }
+    if (!_dev) {
+        return;
+    }
 
     /*
-     * uart_fifo_fill() returns the number of bytes actually accepted by the
-     * TX FIFO.  Loop until all bytes are queued to handle partial fills.
+     * uart_poll_out() is the safe path for CDC-ACM — it doesn't require
+     * the IRQ TX path to be active and works correctly whether or not a
+     * host is connected (bytes are silently dropped if no host).
      */
-    uint16_t sent = 0;
-    while (sent < len) {
-        int n = uart_fifo_fill(_cdc_dev, buf + sent, len - sent);
-        if (n <= 0) {
-            /* TX buffer full - yield and retry */
-            k_yield();
-            continue;
-        }
-        sent += (uint16_t)n;
+    for (uint16_t i = 0; i < len; i++) {
+        uart_poll_out(_dev, buf[i]);
     }
 }

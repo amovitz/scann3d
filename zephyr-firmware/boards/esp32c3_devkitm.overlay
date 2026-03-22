@@ -236,18 +236,13 @@
          * through the USB CDC-ACM virtual serial port instead.
          * UART0 (IO20/IO21) remains available for application use.
          */
-        zephyr,console    = &cdc_acm_uart0;
-        zephyr,shell-uart = &cdc_acm_uart0;
+        zephyr,console    = &usb_serial;
+        zephyr,shell-uart = &usb_serial;
     };
 };
 
-/* ══════════════════════════════════════════════════════════════════════════════
- * 6. USB CDC-ACM - virtual serial port over native USB OTG (IO18/IO19)
- * ══════════════════════════════════════════════════════════════════════════════
- */
 &usb_serial {
     cdc_acm_uart0: cdc_acm_uart0 {
         compatible = "zephyr,cdc-acm-uart";
-        label = "CDC_ACM_0";
     };
 };
