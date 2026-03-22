@@ -1,7 +1,7 @@
 /*
  * boards/esp32c3_devkitm.overlay
  *
- * scann3D v1 - ESP32-C3-WROOM-02-N4
+ * scann3d v1 - ESP32-C3-WROOM-02-N4
  *
  * ┌─────────┬──────┬───────────────────────────────────────────────────────┐
  * │ Signal  │  IO  │ Notes                                                 │
@@ -40,6 +40,7 @@
  */
 
 #include <zephyr/dt-bindings/pinctrl/esp32c3-pinctrl.h>
+#include <zephyr/dt-bindings/pwm/pwm.h>
 
 /* ══════════════════════════════════════════════════════════════════════════════
  * 1. PINCTRL - map peripheral signals to physical GPIO pads
@@ -206,11 +207,11 @@
      * pwms specifier: <&ledc0  channel  period-ns  flags>
      *   period-ns = 20 000 000 → 20 ms → 50 Hz (standard RC servo)
      */
-    pwm_servos: pwm_servos {
-        compatible = "pwm-servo";
+    pwmleds {
+        compatible = "pwm-leds";
 
         servo0_pwm: servo0_pwm {
-            pwms = <&ledc0 0 20000000 PWM_POLARITY_NORMAL>;
+            pwms = <&ledc0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
             label = "SERVO0_PWM";
         };
     };
@@ -244,7 +245,7 @@
  * 6. USB CDC-ACM - virtual serial port over native USB OTG (IO18/IO19)
  * ══════════════════════════════════════════════════════════════════════════════
  */
-&zephyr_udc0 {
+&usb_serial {
     cdc_acm_uart0: cdc_acm_uart0 {
         compatible = "zephyr,cdc-acm-uart";
         label = "CDC_ACM_0";

@@ -29,7 +29,7 @@ typedef struct vl53l8cx_ctx vl53l8cx_ctx_t;
  * @param period_ms  Ranging integration period in ms (min ~34 for 8×8).
  * @return Pointer to context, or NULL on failure.
  */
-vl53l8cx_ctx_t *vl53l8cx_init(uint32_t period_ms);
+vl53l8cx_ctx_t *vl53l8cx_driver_init(uint32_t period_ms);
 
 /**
  * @brief  Poll for a new ranging frame (non-blocking).
@@ -38,7 +38,7 @@ vl53l8cx_ctx_t *vl53l8cx_init(uint32_t period_ms);
  * @param out   Caller-allocated payload buffer to fill.
  * @return true if a new frame was available and written to @p out.
  */
-bool vl53l8cx_get_frame(vl53l8cx_ctx_t *ctx, tof_payload_t *out);
+bool vl53l8cx_driver_get_frame(vl53l8cx_ctx_t *ctx, tof_payload_t *out);
 
 #ifdef __cplusplus
 }

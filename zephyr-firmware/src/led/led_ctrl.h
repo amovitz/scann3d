@@ -1,7 +1,7 @@
 /*
  * led_ctrl.h
  *
- * GPIO-muxed RGB LED controller for scann3D.
+ * GPIO-muxed RGB LED controller for scann3d.
  *
  * Two common-cathode RGB LEDs (D1 and D2) are driven by individual GPIO pins -
  * no PWM.  Mixed colours (yellow, cyan, magenta, white) are produced by rapid

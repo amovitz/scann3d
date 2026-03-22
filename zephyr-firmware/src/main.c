@@ -99,7 +99,7 @@ static void tof_work_handler(struct k_work *w)
     if (!tof_ctx) { return; }
 
     tof_payload_t frame;
-    if (vl53l8cx_get_frame(tof_ctx, &frame)) {
+    if (vl53l8cx_driver_get_frame(tof_ctx, &frame)) {
         data_output_send(PKT_TOF, seq_tof++,
                          &frame, sizeof(frame));
     }
@@ -190,7 +190,7 @@ int main(void)
     }
 
     /* 6. Sensors */
-    tof_ctx  = vl53l8cx_init(CONFIG_SCANNER_TOF_PERIOD_MS);
+    tof_ctx  = vl53l8cx_driver_init(CONFIG_SCANNER_TOF_PERIOD_MS);
     if (!tof_ctx) {
         LOG_ERR("VL53L8CX init failed");
     }

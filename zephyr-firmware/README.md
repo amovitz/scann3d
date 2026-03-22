@@ -1,33 +1,64 @@
-# scann3d - ESP32-C3-WROOM-02-N4
+# scann3d
 
-## Hardware
+## Zephyr
+
+| Library | Version |
+|---|---|
+| west | 1.5.0 |
+| Zephyr | 4.3.0 |
+| Tollchain | 0.17.3 |
+| VL53L8CX ULD | 1.0.0 |
+
+## Hardware - ESP32-C3-WROOM-02-N4
 
 | Device | Part | Bus | Address | Notes |
 |---|---|---|---|---|
-| ToF sensor | VL53L8CX | I2C0 | 0x29 | XSHUT → GPIO6 |
-| Main IMU | LSM6DSV(TR) | I2C0 | 0x6A | INT1 → GPIO7 |
-| Tracker IMU | LSM6DSV(TR) | I2C1 | 0x6B | INT1 → GPIO10, detachable |
+| ToF sensor | VL53L8CX | I2C0 | 0x29 | I2C_RST - IO8 |
+| Main IMU | LSM6DSV(TR) | I2C0 | 0x6A | On-Board |
+| Tracker IMU | LSM6DSV(TR) | I2C1 | 0x6B | Detachable |
 
 ### Pin map (edit `boards/esp32c3_devkitm.overlay` to change)
 
 ```
-GPIO4   I2C0 SDA
-GPIO5   I2C0 SCL
-GPIO6   VL53L8CX XSHUT (active-low)
-GPIO7   LSM6DSV #0 INT1
-GPIO8   I2C1 SDA
-GPIO9   I2C1 SCL
-GPIO10  LSM6DSV #1 INT1
-GPIO18  USB D-  (native USB OTG - do not reassign)
-GPIO19  USB D+  (native USB OTG - do not reassign)
+IO0   LED1-B
+IO1   LED1-G
+IO2   LED1-R
+IO3   LED2-B
+IO4   LED2-G
+IO5   LED2-R
+IO6   I2C0 SDA
+IO7   I2C0 SCL
+IO8   VL53L8CX I2C_RST (active-low)
+IO9   Servo PWM
+IO10  RFU
+IO18  USB D-  (native USB OTG - do not reassign)
+IO19  USB D+  (native USB OTG - do not reassign)
+IO20  RFU (Serial RXD)
+IO21  RFU (Serial TXD)
 ```
 
 Pull SA0 on the main LSM6DSV to GND → address 0x6A.
+
 Pull SA0 on the tracker LSM6DSV to VDD → address 0x6B.
 
 ---
 
 ## Prerequisites
+
+### Installing automatically 
+
+I *highly* recommend installing the [Zephyr Extension for VSCode](https://marketplace.visualstudio.com/items?itemName=mylonics.zephyr-ide) and using it to install tools to the `zephyr-firmware` directory. Then:
+
+
+```bash
+cd zephy-firmware
+. .venv/bin/activate
+west packages pip --install
+west blobs fetch hal_espressif
+```
+
+
+### Installing manually
 
 ```bash
 # Install west and the Zephyr SDK (>=0.16) first:
@@ -36,20 +67,39 @@ Pull SA0 on the tracker LSM6DSV to VDD → address 0x6B.
 pip install west
 
 # Clone and initialise the workspace
-mkdir scanner-ws && cd scanner-ws
-west init -l scanner/          # if you cloned this repo into scanner/
+cd zephy-firmware
+west init
 west update
+west packages pip --install
+west blobs fetch hal_espressif
 west zephyr-export
 ```
 
 ### VL53L8CX ULD (required - not bundled)
 
+Download the driver from [ST Micro directly](https://www.st.com/en/embedded-software/stsw-img040.html).
+
 ```bash
-git clone https://github.com/STMicroelectronics/VL53L8CX_ULD_driver \
-          scanner/lib/vl53l8cx_uld
+# Unzip files
+unzip STSW-IMG040.zip
+
+# Copy ULD API
+cp STSW-IMG040/VL53L8CX_ULD_driver_2.0.1/VL53L8CX_ULD_API/src/* \
+   STSW-IMG040/VL53L8CX_ULD_driver_2.0.1/VL53L8CX_ULD_API/inc/* \
+   lib/vl53lcx_uld/
+
+# Copy Platform
+cp STSW-IMG040/VL53L8CX_ULD_driver_2.0.1/Platform/platform.c \
+   STSW-IMG040/VL53L8CX_ULD_driver_2.0.1/Platform/platform.h \
+   lib/
 ```
 
 The ULD contains ST proprietary firmware; it cannot be redistributed here.
+
+#### Fixes:
+
+- Fix missing semicolon on line 368 of `vl53l8cx_api.c`
+- 
 
 ---
 
@@ -82,6 +132,10 @@ Frames are sent to `CONFIG_SCANNER_UDP_HOST:CONFIG_SCANNER_UDP_PORT`
 (default `192.168.1.100:5005`).  The scanner holds a static IP
 (`192.168.1.200`) by default; change `CONFIG_NET_CONFIG_MY_IPV4_ADDR`
 in `prj.conf` or enable `CONFIG_NET_DHCPV4` to use DHCP instead.
+
+### Raw serial
+
+RFU
 
 ---
 

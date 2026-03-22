@@ -1,7 +1,7 @@
 /*
  * servo_ctrl.h
  *
- * 360-degree continuous-rotation servo controller for scann3D.
+ * 360-degree continuous-rotation servo controller for scann3d.
  *
  * Uses the ESP32-C3 LEDC hardware PWM peripheral (channel 0, IO9).
  * Standard RC servo protocol:

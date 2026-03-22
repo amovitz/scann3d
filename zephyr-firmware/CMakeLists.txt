@@ -9,6 +9,7 @@ project(scanner VERSION 0.1.0)
 set(VL53L8CX_ULD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/vl53l8cx_uld)
 set(VL53L8CX_ULD_SOURCES
     ${VL53L8CX_ULD_DIR}/vl53l8cx_api.c
+    ${VL53L8CX_ULD_DIR}/platform.c
     ${VL53L8CX_ULD_DIR}/vl53l8cx_plugin_detection_thresholds.c
     ${VL53L8CX_ULD_DIR}/vl53l8cx_plugin_motion_indicator.c
     ${VL53L8CX_ULD_DIR}/vl53l8cx_plugin_xtalk.c
@@ -21,7 +22,6 @@ target_sources(app PRIVATE
     src/uart_aux.c
     src/led/led_ctrl.c
     src/servo/servo_ctrl.c
-    src/vl53l8cx/vl53l8cx_platform.c
     src/vl53l8cx/vl53l8cx_driver.c
     src/lsm6dsv/lsm6dsv_driver.c
     src/output/data_output.c
