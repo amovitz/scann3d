@@ -1,0 +1,27 @@
+Drill report for scann3d.kicad_pcb
+Created on 2026-03-21T21:18:28-0600
+
+Copper Layer Stackup:
+    =============================================================
+    L1 :  F.Cu                      front
+    L2 :  B.Cu                      back
+
+
+Drill file 'scann3d-PTH.drl' contains
+    plated through holes:
+    =============================================================
+    T1  0.200mm  0.0079"  (12 holes)
+    T2  0.300mm  0.0118"  (37 holes)
+    T3  0.500mm  0.0197"  (3 holes)
+    T4  0.650mm  0.0256"  (20 holes)
+    T5  0.700mm  0.0276"  (1 hole)
+    T6  1.200mm  0.0472"  (4 holes)
+
+    Total plated holes count 77
+
+
+Drill file 'scann3d-NPTH.drl' contains
+    unplated through holes:
+    =============================================================
+
+    Total unplated holes count 0

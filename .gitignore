@@ -19,3 +19,7 @@ venv/
 
 # Datasheets (link to official sources instead)
 *.pdf
+
+# KiCAD
+kicad/*.lck
+kicad/scann3d-backups/
