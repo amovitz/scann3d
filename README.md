@@ -2,11 +2,6 @@
 
 Real-time 3D object scanner using the VL53L8CX multi-zone time-of-flight sensor with dual LSM6DSVTR‎ IMU position tracking.
 
-### Forked from [ferrolho/VL53L5CX-BNO08X-viewer](https://github.com/ferrolho/VL53L5CX-BNO08X-viewer)
-
-[![Watch the original video](https://img.youtube.com/vi/s32OUzhjf4U/maxresdefault.jpg)](https://youtu.be/s32OUzhjf4U)
-
-
 ## Features
 
 - **64-zone 3D visualization** - See the VL53L8CX's 8x8 measurement grid as rays in 3D space
@@ -95,6 +90,12 @@ Open http://localhost:8080 in your browser.
 | 8x8        | 64    | 15 Hz         |
 
 Currently configured for 8x8 at 15Hz.
+
+---
+
+## Forked from [ferrolho/VL53L5CX-BNO08X-viewer](https://github.com/ferrolho/VL53L5CX-BNO08X-viewer)
+
+[![Watch the original video](https://img.youtube.com/vi/s32OUzhjf4U/maxresdefault.jpg)](https://youtu.be/s32OUzhjf4U)
 
 ## License
 
