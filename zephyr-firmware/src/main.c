@@ -103,6 +103,11 @@ int main(void)
                       CONFIG_SCANNER_TOF_PERIOD_MS,
                       CONFIG_SCANNER_STATUS_PERIOD_MS);
 
+    /* Wait a few seconds and turn off LEDs for darkroom conditions */
+    k_sleep(K_SECONDS(3));
+    led_set_color(LED_D1, LED_COLOR_OFF);
+    led_set_color(LED_D2, LED_COLOR_OFF);
+
     /* Main thread has nothing left to do - everything runs via timers/work. */
     while (true) {
         k_sleep(K_FOREVER);

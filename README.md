@@ -53,6 +53,8 @@ pip install -r viewer/requirements.txt
 | D1 | Red | Blinking | WiFi disconnected |
 | D1 | Green | Steady | WiFi connected |
 | D1 | Green | Blinking | Output (USB serial+UDP) sending data |
+| D1 | Off | Steady | Booted, actively scanning |
+|---|---|---|---|
 | D2 | White | Blinking | Booting |
 | D2 | Cyan | Steady | Servo init failure |
 | D2 | Magenta | Steady | UART0 init failure |
@@ -62,6 +64,9 @@ pip install -r viewer/requirements.txt
 | D2 | Yellow | Steady | ToF init success |
 | D2 | Blue | Steady | IMU0 init success |
 | D2 | Blue | Blinking | IMU0, IMU1 init success |
+| D2 | Off | Steady | Booted, actively scanning |
+
+Note: The LEDs will turn off after successfully booting and scanning begins. The ToF sensor works best in darkroom conditions.
 
 ### Python Viewer
 
