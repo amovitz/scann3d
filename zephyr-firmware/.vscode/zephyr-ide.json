@@ -1,0 +1,34 @@
+{
+  "projects": {
+    "zephyr-firmware": {
+      "rel_path": "",
+      "name": "zephyr-firmware",
+      "buildConfigs": {
+        "build/esp32c3_devkitc": {
+          "relBoardDir": "boards",
+          "relBoardSubDir": "../external/zephyr/boards/espressif/esp32c3_devkitc",
+          "board": "esp32c3_devkitc",
+          "name": "build/esp32c3_devkitc",
+          "westBuildArgs": "",
+          "westBuildCMakeArgs": " -DCONFIG_DEBUG_OPTIMIZATIONS=y -DCONFIG_DEBUG_THREAD_INFO=y ",
+          "confFiles": {
+            "config": [],
+            "extraConfig": [],
+            "overlay": [],
+            "extraOverlay": []
+          },
+          "runnerConfigs": {}
+        }
+      },
+      "twisterConfigs": {},
+      "confFiles": {
+        "config": [],
+        "extraConfig": [],
+        "overlay": [],
+        "extraOverlay": [
+          "boards/esp32c3_devkitc.overlay"
+        ]
+      }
+    }
+  }
+}
